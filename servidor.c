@@ -1,30 +1,6 @@
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdlib.h>
-#include <string.h>
-#include<signal.h>
-#include <unistd.h>
-#include <time.h>
-#include <arpa/inet.h>
+#include "ServFunciones.h"
 
-
-#define MSG_SIZE 250
-#define MAX_CLIENTS 50
-
-
-/*
- * El servidor ofrece el servicio de un chat
- */
-
-void manejador(int signum);
-void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]);
-
-
-
-int main ( )
+int main ( int argc, char **argv)
 {
   
 	/*---------------------------------------------------- 
@@ -93,7 +69,7 @@ int main ( )
 	}
 
 	
-    	printf("El servidor está esperando conexiones...\n");	//Inicializar los conjuntos fd_set
+    	printf("[*] El juego está esperando jugadores...\n");	//Inicializar los conjuntos fd_set
     	
 	FD_ZERO(&readfds);
     	FD_ZERO(&auxfds);
@@ -135,21 +111,21 @@ int main ( )
                                     numClientes++;
                                     FD_SET(new_sd,&readfds);
                                 
-                                    strcpy(buffer, "Bienvenido al chat\n");
+                                    strcpy(buffer, "Bienvenido al juego\n");
                                 
                                     send(new_sd,buffer,sizeof(buffer),0);
                                 
                                     for(j=0; j<(numClientes-1);j++){
                                     
                                         bzero(buffer,sizeof(buffer));
-                                        sprintf(buffer, "Nuevo Cliente conectado en <%d>",new_sd);
+                                        sprintf(buffer, "[+] Ok. Usuario conectado <%d>",new_sd);
                                         send(arrayClientes[j],buffer,sizeof(buffer),0);
                                     }
                                 }
                                 else
                                 {
                                     bzero(buffer,sizeof(buffer));
-                                    strcpy(buffer,"Demasiados clientes conectados\n");
+                                    strcpy(buffer,"Demasiados juadores conectados\n");
                                     send(new_sd,buffer,sizeof(buffer),0);
                                     close(new_sd);
                                 }
@@ -188,11 +164,41 @@ int main ( )
                             
                             if(recibidos > 0){
                                 
+                                /*
+                                    OPCIONES
+                                */
+
                                 if(strcmp(buffer,"SALIR\n") == 0){
                                     
-                                    salirCliente(i,&readfds,&numClientes,arrayClientes);
-                                    
+                                    salirCliente(i,&readfds,&numClientes,arrayClientes);   
                                 }
+                                if(strcmp(buffer,"USUARIO\n") == 0){
+                                    
+                                    /*if(ExisteUsuario(i,&readfds,&numClientes,arrayClientes)){
+                                        //Ok. Uusario correcto
+                                    }
+                                    else{
+                                        //Err. Usuario incorrecto.
+                                    }*/
+                                }
+                                if(strcmp(buffer,"PASSWORD\n") == 0){
+                                    
+                                    //   
+                                }
+                                if(strcmp(buffer,"REGISTRO\n") == 0){
+                                    
+                                    salirCliente(i,&readfds,&numClientes,arrayClientes);   
+                                }
+                                if(strcmp(buffer,"DISPARO\n") == 0){
+                                    
+                                    salirCliente(i,&readfds,&numClientes,arrayClientes);   
+                                }
+                                if(strcmp(buffer,"INICIAR-PARTIDA\n") == 0){
+                                    
+                                    //INICIAR PARTIDA  
+                                }
+
+                                
                                 else{
                                     
                                     sprintf(identificador,"<%d>: %s",i,buffer);
