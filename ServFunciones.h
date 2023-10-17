@@ -28,5 +28,7 @@ struct Partida{
 
 void manejador(int signum);
 void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]);
+int BuscarJugador( struct jugador a);
+int RellenaFichero(struct jugador a);
 
 //int ExisteUsuario(i,&readfds,&numClientes,arrayClientes);

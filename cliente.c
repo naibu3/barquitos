@@ -98,7 +98,7 @@ int main ( )
 		if(strcmp(buffer,"-Err. Usuario incorrecto\n") == 0){  //REGISTRO
 
 			char opcion[10];
-			printf("Desea registrarse(R) o desea termianr la conexion(SALIR)\n");
+			printf("Desea registrarse(R) o desea terminar la conexion(SALIR)\n");
 			fgets(opcion, sizeof(opcion), stdin);
 			if(strcmp(opcion,"SALIR\n") == 0){
 				close(sd);
@@ -191,10 +191,6 @@ int main ( )
     return 0;
 		
 }
-
-
-
-
 
 
 
