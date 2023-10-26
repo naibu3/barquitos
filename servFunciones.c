@@ -1,5 +1,9 @@
 #include "ServFunciones.h"
 
+/*-------------------------------------
+    CONEXION
+---------------------------------------*/
+
 void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]){
   
     char buffer[250];
@@ -33,6 +37,62 @@ void manejador (int signum){
     signal(SIGINT,manejador);
     
     //Implementar lo que se desee realizar cuando ocurra la excepción de ctrl+c en el servidor
+}
+
+/*-------------------------------------
+    LOGIN
+---------------------------------------*/
+
+int RellenaFichero(struct jugador a){
+
+    FILE *f;
+    if(f=(fopen("jugadores.txt","a+"))==NULL){
+
+        perror("No se ha añadido correctamente\n");
+        return 0;
+    }
+
+    struct jugador b;
+
+    while(fscanf(f,"%s, %s",&b.nombre,&b.password)==2){
+
+        if(strcmp(a.nombre,b.nombre)==0){
+
+            perror("El usuario ya ha sido registrado");
+            fclose(f);
+            return 0;
+        }
+        fprintf(f,"%s, %s\n",a.nombre,a.password);
+    }
+
+    fclose(f);
+    return 1;
+}
+
+int BuscarJugador(struct jugador a){
+
+        FILE *f;
+    if(f=(fopen("jugadores.txt","a+"))==NULL){
+
+        perror("No se ha añadido correctamente\n");
+        return 0;
+    }
+
+    struct jugador b;
+
+    while(fscanf(f,"%s, %s",&b.nombre,&b.password)==2){
+
+        if(strcmp(&a.nombre,&b.nombre)==0){
+
+            fclose(f);
+            return 0;
+        }
+        
+    }
+
+    fclose(f);
+    return 1;
+
 }
 
 /*-------------------------------------
