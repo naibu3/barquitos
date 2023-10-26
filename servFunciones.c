@@ -1,4 +1,4 @@
-#include "ServFunciones.h"
+#include "servFunciones.h"
 
 /*-------------------------------------
     CONEXION
@@ -43,7 +43,7 @@ void manejador (int signum){
     LOGIN
 ---------------------------------------*/
 
-int RellenaFichero(struct jugador a){
+int RellenaFichero(struct Jugador a){
 
     FILE *f;
     if(f=(fopen("jugadores.txt","a+"))==NULL){
@@ -52,7 +52,7 @@ int RellenaFichero(struct jugador a){
         return 0;
     }
 
-    struct jugador b;
+    struct Jugador b;
 
     while(fscanf(f,"%s, %s",&b.nombre,&b.password)==2){
 
@@ -69,16 +69,16 @@ int RellenaFichero(struct jugador a){
     return 1;
 }
 
-int BuscarJugador(struct jugador a){
+int BuscarJugador(struct Jugador a){
 
-        FILE *f;
+    FILE *f;
     if(f=(fopen("jugadores.txt","a+"))==NULL){
 
         perror("No se ha añadido correctamente\n");
         return 0;
     }
 
-    struct jugador b;
+    struct Jugador b;
 
     while(fscanf(f,"%s, %s",&b.nombre,&b.password)==2){
 

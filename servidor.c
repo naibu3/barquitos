@@ -1,4 +1,5 @@
-#include "ServFunciones.h"
+#include "servFunciones.h"
+
 
 int main ( int argc, char **argv)
 {
