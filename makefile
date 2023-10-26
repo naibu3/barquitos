@@ -1,6 +1,6 @@
 all: servidor cliente
 
-servidor: servidor.c
+servidor: servidor.c servFunciones.c
 	gcc -o $@ $^
 
 cliente: cliente.c

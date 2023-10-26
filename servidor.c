@@ -64,16 +64,16 @@ int main ( int argc, char **argv)
 	}
 
 	
-    	printf("[*] El juego está esperando jugadores...\n");	//Inicializar los conjuntos fd_set
+    printf("[*] El juego está esperando jugadores...\n");	//Inicializar los conjuntos fd_set
     	
 	FD_ZERO(&readfds);
-    	FD_ZERO(&auxfds);
-    	FD_SET(sd,&readfds);
-    	FD_SET(0,&readfds);
+    FD_ZERO(&auxfds);
+    FD_SET(sd,&readfds);
+    FD_SET(0,&readfds);
     
    	
-    	//Capturamos la señal SIGINT (Ctrl+c)
-    	signal(SIGINT,manejador);
+    //Capturamos la señal SIGINT (Ctrl+c)
+    signal(SIGINT,manejador);
     
 	/*-----------------------------------------------------------------------
 		El servidor acepta una petición
@@ -242,37 +242,3 @@ int main ( int argc, char **argv)
 	
 }
 
-void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]){
-  
-    char buffer[250];
-    int j;
-    
-    close(socket);
-    FD_CLR(socket,readfds);
-    
-    //Re-estructurar el array de clientes
-    for (j = 0; j < (*numClientes) - 1; j++)
-        if (arrayClientes[j] == socket)
-            break;
-    for (; j < (*numClientes) - 1; j++)
-        (arrayClientes[j] = arrayClientes[j+1]);
-    
-    (*numClientes)--;
-    
-    bzero(buffer,sizeof(buffer));
-    sprintf(buffer,"Desconexión del cliente <%d>",socket);
-    
-    for(j=0; j<(*numClientes); j++)
-        if(arrayClientes[j] != socket)
-            send(arrayClientes[j],buffer,sizeof(buffer),0);
-
-
-}
-
-
-void manejador (int signum){
-    printf("\nSe ha recibido la señal sigint\n");
-    signal(SIGINT,manejador);
-    
-    //Implementar lo que se desee realizar cuando ocurra la excepción de ctrl+c en el servidor
-}
