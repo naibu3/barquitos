@@ -21,9 +21,9 @@ int main ( )
 	struct sockaddr_in sockname;
 	char buffer[250];
 	socklen_t len_sockname;
-    	fd_set readfds, auxfds;
-    	int salida;
-    	int fin = 0;
+    fd_set readfds, auxfds;
+    int salida;
+    int fin = 0;
 	
     
 	/* --------------------------------------------------
@@ -66,81 +66,6 @@ int main ( )
     
     FD_SET(0,&readfds);
     FD_SET(sd,&readfds);
-
-
-	/* ------------------------------------------------------------------
-		LOGIN
-	-------------------------------------------------------------------*/
-	
-	struct Jugador a;
-    
-	if(FD_ISSET(0,&auxfds)){	//USUARIO
-
-		printf("Introduzca nombre de usuario: ");
-		fgets(a.nombre,sizeof(a.nombre),stdin);
-		send(sd,strcat("USUARIO ", a.nombre),sizeof(a.nombre),0);
-    }
-
-	auxfds = readfds;
-	salida = select(sd+1,&auxfds,NULL,NULL,NULL);
-	
-	//Tengo mensaje desde el servidor
-	if(FD_ISSET(sd, &auxfds)){
-		
-		bzero(buffer,sizeof(buffer));
-		recv(sd,buffer,sizeof(buffer),0);
-		
-		printf("\n%s\n",buffer);
-
-		if(strcmp(buffer,"+Ok. Usuario conectado.\n") == 0)
-            fin =0;
-            
-		if(strcmp(buffer,"-Err. Usuario incorrecto\n") == 0){  //REGISTRO
-
-			char opcion[10];
-			printf("Desea registrarse(R) o desea termianr la conexion(SALIR)\n");
-			fgets(opcion, sizeof(opcion), stdin);
-			if(strcmp(opcion,"SALIR\n") == 0){
-				close(sd);
-    			return 0;
-			}
-
-			if(FD_ISSET(0,&auxfds)){
-
-				printf("Introduzca contraseña de : ");
-				fgets(a.password,sizeof(a.password),stdin);
-				send(sd, strcat(strcat("REGISTRO -u", a.nombre), strcat( " -p ", a.password)), sizeof(a.password),0);
-   			}
-
-		}	
-	}
-
-	if(FD_ISSET(0,&auxfds)){	//CONTRASEÑA
-
-		printf("Introduzca contraseña de : ");
-		fgets(a.password,sizeof(a.password),stdin);
-		send(sd,strcat("PASSWORD ", a.password),sizeof(a.password),0);
-    }
-
-	auxfds = readfds;
-	salida = select(sd+1,&auxfds,NULL,NULL,NULL);
-	
-	//Tengo mensaje desde el servidor
-	if(FD_ISSET(sd, &auxfds)){
-		
-		bzero(buffer,sizeof(buffer));
-		recv(sd,buffer,sizeof(buffer),0);
-		
-		printf("\n%s\n",buffer);
-
-		if(strcmp(buffer,"+Ok. Usuario validado.\n") == 0)
-            fin =0;
-            
-		if(strcmp(buffer,"-Err. Error en la validación\n") == 0){
-			close(sd);
-    		return 0;
-		}
-	}
 
 	/* ------------------------------------------------------------------
 		Se transmite la información

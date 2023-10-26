@@ -10,18 +10,16 @@ int main ( int argc, char **argv)
 	struct sockaddr_in sockname, from;
 	char buffer[MSG_SIZE];
 	socklen_t from_len;
-    	fd_set readfds, auxfds;
-   	 int salida;
-   	 int arrayClientes[MAX_CLIENTS];
-    	int numClientes = 0;
-   	 //contadores
+    fd_set readfds, auxfds;
+   	int salida;
+   	int arrayClientes[MAX_CLIENTS];
+    int numClientes = 0;
+   	//contadores
     	int i,j,k;
 	int recibidos;
-   	 char identificador[MSG_SIZE];
+   	char identificador[MSG_SIZE];
     
-    	int on, ret;
-
-    
+    int on, ret;
     
 	/* --------------------------------------------------
 		Se abre el socket 
@@ -33,16 +31,14 @@ int main ( int argc, char **argv)
     		exit (1);	
 	}
     
-    	// Activaremos una propiedad del socket para permitir· que otros
-    	// sockets puedan reutilizar cualquier puerto al que nos enlacemos.
-    	// Esto permite· en protocolos como el TCP, poder ejecutar un
-    	// mismo programa varias veces seguidas y enlazarlo siempre al
-   	 // mismo puerto. De lo contrario habrÌa que esperar a que el puerto
-    	// quedase disponible (TIME_WAIT en el caso de TCP)
-    	on=1;
-    	ret = setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-
-
+    // Activaremos una propiedad del socket para permitir· que otros
+    // sockets puedan reutilizar cualquier puerto al que nos enlacemos.
+    // Esto permite· en protocolos como el TCP, poder ejecutar un
+    // mismo programa varias veces seguidas y enlazarlo siempre al
+    // mismo puerto. De lo contrario habrÌa que esperar a que el puerto
+    // quedase disponible (TIME_WAIT en el caso de TCP)
+    on=1;
+    ret = setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
 	sockname.sin_family = AF_INET;
 	sockname.sin_port = htons(2000);
@@ -53,7 +49,6 @@ int main ( int argc, char **argv)
 		perror("Error en la operación bind");
 		exit(1);
 	}
-	
 
    	/*---------------------------------------------------------------------
 		Del las peticiones que vamos a aceptar sólo necesitamos el 
@@ -99,7 +94,8 @@ int main ( int argc, char **argv)
                     //Buscamos el socket por el que se ha establecido la comunicación
                     if(FD_ISSET(i, &auxfds)) {
                         
-                        if( i == sd){
+                        if( i == sd) //NUEVA CONEXION
+                        {
                             
                             if((new_sd = accept(sd, (struct sockaddr *)&from, &from_len)) == -1){
                                 perror("Error aceptando peticiones");
@@ -134,8 +130,8 @@ int main ( int argc, char **argv)
                             
                             
                         }
-                        else if (i == 0){
-                            //Se ha introducido información de teclado
+                        else if (i == 0) //INFO INTRODUCIDA POR TECLADO (LADO DEL SERVIDOR)
+                        {
                             bzero(buffer, sizeof(buffer));
                             fgets(buffer, sizeof(buffer),stdin);
                             
@@ -143,57 +139,68 @@ int main ( int argc, char **argv)
                             if(strcmp(buffer,"SALIR\n") == 0){
                              
                                 for (j = 0; j < numClientes; j++){
-						   bzero(buffer, sizeof(buffer));
-						   strcpy(buffer,"Desconexión servidor\n"); 
+						            bzero(buffer, sizeof(buffer));
+						            strcpy(buffer,"Desconexión servidor\n"); 
                                     send(arrayClientes[j],buffer , sizeof(buffer),0);
                                     close(arrayClientes[j]);
                                     FD_CLR(arrayClientes[j],&readfds);
                                 }
-                                    close(sd);
-                                    exit(-1);
-                                
-                                
+                                close(sd);
+                                exit(-1);
                             }
                             //Mensajes que se quieran mandar a los clientes (implementar)
-                            
-                        } 
-                        else{
+                        }
+                        else //MENSAJE DE UN CLIENTE
+                        {
                             bzero(buffer,sizeof(buffer));
                             
                             recibidos = recv(i,buffer,sizeof(buffer),0);
                             
                             if(recibidos > 0){
                                 
-                                /*
+                                /*-----------------------------------------
                                     OPCIONES
-                                */
+                                ------------------------------------------*/
 
                                 if(strcmp(buffer,"SALIR\n") == 0){
                                     
                                     salirCliente(i,&readfds,&numClientes,arrayClientes);   
                                 }
-                                if(strcmp(buffer,"USUARIO\n") == 0){
-                                    
-                                    /*if(ExisteUsuario(i,&readfds,&numClientes,arrayClientes)){
+                                if(strncmp(buffer,"USUARIO ", 8) == 0){
+
+                                    char nombre[100];
+
+                                    sscanf(buffer, "USUARIO %s", nombre);
+
+                                    //printf("Jugador %s recibido!", nombre);   //debug
+
+                                    /*if(BuscarJugador()){
                                         //Ok. Uusario correcto
                                     }
                                     else{
                                         //Err. Usuario incorrecto.
                                     }*/
                                 }
-                                if(strcmp(buffer,"PASSWORD\n") == 0){
+                                if(strncmp(buffer,"PASSWORD ", 9) == 0){
                                     
-                                    //   
+                                    char passwd[100];
+
+                                    sscanf(buffer, "PASSWORD %s", passwd);
+
+                                    printf("Contraseña %s requested!", passwd);   //debug
                                 }
-                                if(strcmp(buffer,"REGISTRO\n") == 0){
+                                if(strncmp(buffer,"REGISTRO ", 9) == 0){
                                     
-                                    salirCliente(i,&readfds,&numClientes,arrayClientes);   
+                                    char nombre[100];
+                                    char passwd[100];
+
+                                    sscanf(buffer, "REGISTRO %s %s", nombre, passwd);
                                 }
-                                if(strcmp(buffer,"DISPARO\n") == 0){
+                                if(strncmp(buffer,"DISPARO ", 8) == 0){
                                     
-                                    salirCliente(i,&readfds,&numClientes,arrayClientes);   
+                                    //Disparo
                                 }
-                                if(strcmp(buffer,"INICIAR-PARTIDA\n") == 0){
+                                if(strncmp(buffer,"INICIAR-PARTIDA ", 16) == 0){
                                     
                                     //INICIAR PARTIDA  
                                 }
