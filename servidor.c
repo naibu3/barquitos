@@ -242,3 +242,90 @@ int main ( int argc, char **argv)
 	
 }
 
+void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]){
+  
+    char buffer[250];
+    int j;
+    
+    close(socket);
+    FD_CLR(socket,readfds);
+    
+    //Re-estructurar el array de clientes
+    for (j = 0; j < (*numClientes) - 1; j++)
+        if (arrayClientes[j] == socket)
+            break;
+    for (; j < (*numClientes) - 1; j++)
+        (arrayClientes[j] = arrayClientes[j+1]);
+    
+    (*numClientes)--;
+    
+    bzero(buffer,sizeof(buffer));
+    sprintf(buffer,"Desconexión del cliente <%d>",socket);
+    
+    for(j=0; j<(*numClientes); j++)
+        if(arrayClientes[j] != socket)
+            send(arrayClientes[j],buffer,sizeof(buffer),0);
+
+
+}
+
+
+void manejador (int signum){
+    printf("\nSe ha recibido la señal sigint\n");
+    signal(SIGINT,manejador);
+    
+    //Implementar lo que se desee realizar cuando ocurra la excepción de ctrl+c en el servidor
+}
+
+
+int RellenaFichero(struct jugador a){
+
+    FILE *f;
+    if(f=(fopen("jugadores.txt","a+"))==NULL){
+
+        perror("No se ha añadido correctamente\n");
+        return 0;
+    }
+
+    struct jugador b;
+
+    while(fscanf(f,"%s, %s",&b.nombre,&b.password)==2){
+
+        if(strcmp(a.nombre,b.nombre)==0){
+
+            perror("El usuario ya ha sido registrado");
+            fclose(f);
+            return 0;
+        }
+        fprintf(f,"%s, %s\n",a.nombre,a.password);
+    }
+
+    fclose(f);
+    return 1;
+}
+
+int BuscarJugador(struct jugador a){
+
+        FILE *f;
+    if(f=(fopen("jugadores.txt","a+"))==NULL){
+
+        perror("No se ha añadido correctamente\n");
+        return 0;
+    }
+
+    struct jugador b;
+
+    while(fscanf(f,"%s, %s",&b.nombre,&b.password)==2){
+
+        if(strcmp(&a.nombre,&b.nombre)==0){
+
+            fclose(f);
+            return 0;
+        }
+        
+    }
+
+    fclose(f);
+    return 1;
+
+}
