@@ -3,6 +3,8 @@
 struct Jugador{
 
     int sd;
-    char nombre[200];
-    char password[200];
+    char nombre[100];
+    char password[100];
+    int logged;
+    int enPartida;
 };

@@ -76,6 +76,21 @@ int main ( int argc, char **argv)
     //Capturamos la señal SIGINT (Ctrl+c)
     signal(SIGINT,manejador);
     
+    /*--------------------------
+        VARIABLES DE JUEGO
+    ----------------------------*/
+    struct Jugador jugadores[30];
+    int nJugadores=0;
+
+    struct Partida partidas[15];
+    int nPartidas=0;
+
+    //Variables auxiliares
+        int aux;
+        char nombre[100];
+        char passwd[100];
+        struct Jugador jugadorAux;
+
 	/*-----------------------------------------------------------------------
 		El servidor acepta una petición
 	------------------------------------------------------------------------ */
@@ -85,7 +100,7 @@ int main ( int argc, char **argv)
             
             auxfds = readfds;
             
-            salida = select(FD_SETSIZE,&auxfds,NULL,NULL,NULL);
+            salida = select(FD_SETSIZE, &auxfds, NULL, NULL, NULL);
             
             if(salida > 0){
                 
@@ -169,33 +184,95 @@ int main ( int argc, char **argv)
                                 }
                                 if(strncmp(buffer,"USUARIO ", 8) == 0){
 
-                                    char nombre[100];
-
                                     sscanf(buffer, "USUARIO %s", nombre);
 
-                                    //printf("Jugador %s recibido!", nombre);   //debug
+                                    //printf("Jugador %s recibido!\n", nombre);   //debug
 
-                                    /*if(BuscarJugador()){
-                                        //Ok. Uusario correcto
+                                    if(aux=JugadorConectado(jugadores, nJugadores, nombre)){
+                                        //AVISAR DE QUE YA ESTÁ CONECTADO
+                                        strcpy(buffer, "–Err. Usuario ya conectado\n");
+                                        send(i,buffer,sizeof(buffer),0);
                                     }
                                     else{
-                                        //Err. Usuario incorrecto.
-                                    }*/
+                                        if(BuscarJugador(nombre)){//+Ok. Usuario correcto
+                                            strcpy(buffer, "+Ok. Usuario correcto\n");
+                                            send(i,buffer,sizeof(buffer),0);
+                                            
+                                            //Añadir jugador a jugadores
+                                            jugadorAux.sd=sd;
+                                            strcpy(jugadorAux.nombre, nombre);
+                                            strcpy(jugadorAux.password, "");
+                                            jugadorAux.sd=i;
+                                            jugadorAux.enPartida=0;
+                                            jugadorAux.logged=0;
+
+                                            jugadores[nJugadores]=jugadorAux;
+                                            nJugadores++;
+                                            
+                                            //Debug
+                                            for(int j=0; j<nJugadores; j++){
+                                                printf("[USUARIO(%i): sd(%i), nombre(%s)]\n", j, i, jugadores[j].nombre);
+                                            }
+                                        }
+                                        else{//Err. Usuario no registrado.   
+                                            strcpy(buffer, "–Err. Usuario incorrecto\n");
+                                            send(i,buffer,sizeof(buffer),0);
+                                        }
+                                    }  
                                 }
                                 if(strncmp(buffer,"PASSWORD ", 9) == 0){
-                                    
-                                    char passwd[100];
 
                                     sscanf(buffer, "PASSWORD %s", passwd);
 
-                                    printf("Contraseña %s requested!", passwd);   //debug
+                                    //printf("Contraseña %s requested! sd(%i)\n", passwd, i);   //debug
+
+                                    //Comprueba que el cliente esté conectado
+                                    if(aux=GetPosJugador(jugadores, nJugadores, i) != -1){
+                                    
+                                        jugadorAux=jugadores[aux];
+                                        strcpy(jugadorAux.password, passwd);
+
+                                        //Comprueba que la contraseña es correcta
+                                        if(CheckPassword(jugadorAux)) {
+
+                                            strcpy(buffer, "+Ok. Usuario validado\n");
+                                            send(i,buffer,sizeof(buffer),0);
+                                            jugadorAux.logged=1;
+                                            jugadores[aux]=jugadorAux;
+                                        }
+                                        else{
+
+                                            strcpy(buffer, "–Err. Error en la validación1\n");
+                                            send(i,buffer,sizeof(buffer),0);
+                                        }
+                                    }
+                                    else{
+
+                                        strcpy(buffer, "–Err. Error en la validación2\n");
+                                        send(i,buffer,sizeof(buffer),0);
+                                    }
                                 }
                                 if(strncmp(buffer,"REGISTRO ", 9) == 0){
                                     
                                     char nombre[100];
                                     char passwd[100];
 
-                                    sscanf(buffer, "REGISTRO %s %s", nombre, passwd);
+                                    sscanf(buffer, "REGISTRO -u %s -p %s", nombre, passwd);
+
+                                    strcpy(jugadorAux.nombre,nombre);
+                                    strcpy(jugadorAux.password,passwd);
+
+                                    if(!RellenaFichero(jugadorAux)){
+
+                                        strcpy(buffer, "+Ok. Usuario registrado\n");
+                                        send(i,buffer,sizeof(buffer),0);
+                                    }
+                                    else{
+                                        strcpy(buffer, "–Err. Error en el registro\n");
+                                        send(i,buffer,sizeof(buffer),0);
+                                    }
+
+                                    
                                 }
                                 if(strncmp(buffer,"DISPARO ", 8) == 0){
                                     

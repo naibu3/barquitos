@@ -43,49 +43,102 @@ void manejador (int signum){
     LOGIN
 ---------------------------------------*/
 
-int RellenaFichero(struct Jugador a){
+int JugadorConectado(struct Jugador jugadores[30], int nJugadores,char nombre[100]){
 
-    FILE *f;
-    if(f=(fopen("jugadores.txt","a+"))==NULL){
+	for(int i=0; i<nJugadores; i++){
 
-        perror("No se ha añadido correctamente\n");
-        return 0;
+		if(strcmp(jugadores[i].nombre, nombre)){
+			
+			return i;
+		}
+	}
+
+	return 0;
+}
+
+int RellenaFichero(struct Jugador newJ){
+
+    FILE *f = fopen("jugadores.txt","a+");
+
+	//ERROR al abrir el fichero
+    if(f==NULL){
+        perror("Error al abrir el fichero de jugadores\n");
+        exit(1);
     }
 
-    struct Jugador b;
+    struct Jugador j;
 
-    while(fscanf(f,"%s, %s",&b.nombre,&b.password)==2){
+    while(fscanf(f,"%s , %s", j.nombre, j.password)==2){
 
-        if(strcmp(a.nombre,b.nombre)==0){
+		printf("USER: %s\n", j.nombre);	//Debug
 
-            perror("El usuario ya ha sido registrado");
+        if(strcmp(newJ.nombre, j.nombre)==0){
+
+            //perror("El usuario ya ha sido registrado");
             fclose(f);
-            return 0;
+            return 1;
         }
-        fprintf(f,"%s, %s\n",a.nombre,a.password);
+    }
+
+	fprintf(f, "%s , %s\n", newJ.nombre, newJ.password);
+
+    fclose(f);
+    return 0;
+}
+
+
+int BuscarJugador(char nombre[100]){
+
+    FILE *f = fopen("jugadores.txt","a+");
+
+	//ERROR al abrir el fichero
+    if(f==NULL){
+        perror("Error al abrir el fichero de jugadores\n");
+        exit(1);
+    }
+
+    struct Jugador j;
+
+    while(fscanf(f, "%s , %s", j.nombre, j.password) == 2){
+
+		//printf("USER: %s\n", j.nombre);	//debug
+
+        if(strcmp(nombre, j.nombre) == 0){
+
+            fclose(f);
+            return 1;
+        }
+        
     }
 
     fclose(f);
-    return 1;
+    return 0;
+
 }
 
-int BuscarJugador(struct Jugador a){
+int CheckPassword(struct Jugador newJ){
 
-    FILE *f;
-    if(f=(fopen("jugadores.txt","a+"))==NULL){
+    FILE *f = fopen("jugadores.txt","a+");
 
-        perror("No se ha añadido correctamente\n");
-        return 0;
+	//ERROR al abrir el fichero
+    if(f==NULL){
+        perror("Error al abrir el fichero de jugadores\n");
+        exit(1);
     }
 
-    struct Jugador b;
+    struct Jugador j;
 
-    while(fscanf(f,"%s, %s",&b.nombre,&b.password)==2){
+    while(fscanf(f, "%s , %s", j.nombre, j.password) == 2){
 
-        if(strcmp(&a.nombre,&b.nombre)==0){
+		//printf("USER: %s\n", j.nombre);	//debug
 
-            fclose(f);
-            return 0;
+        if(strcmp(newJ.nombre, j.nombre) == 0){
+		
+			if(strcmp(newJ.password, j.password) == 0) {
+				fclose(f);
+				return 0;
+			}
+			else return 1;
         }
         
     }
@@ -93,6 +146,20 @@ int BuscarJugador(struct Jugador a){
     fclose(f);
     return 1;
 
+}
+
+int GetPosJugador(struct Jugador jugadores[30], int nJugadores, int sd){
+
+
+	for(int i=0; i<nJugadores; i++){
+
+		if(jugadores[i].sd==sd){
+
+			return i;
+		}
+	}
+
+	return -1;
 }
 
 /*-------------------------------------

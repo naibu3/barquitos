@@ -18,6 +18,8 @@
 struct Partida{
 
     int id_partida;
+	char tablero1[10][10];
+	char tablero2[10][10];
     struct Jugador j1;
     struct Jugador j2;
 };
@@ -28,8 +30,52 @@ struct Partida{
 
 void manejador(int signum);
 void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]);
-int BuscarJugador( struct Jugador a);
+
+/*-------------------------------------
+    LOGIN
+---------------------------------------*/
+
+int JugadorConectado(struct Jugador jugadores[30], int nJugadores, char nombre[100]);
+
+/*BuscarJugador
+
+	PARAMETROS:
+		- a -> Jugador a buscar
+	
+	RETURN:
+		- 1 en caso de éxito ó 0 en caso de error
+
+	Busca el nombre de un jugador en un fichero y devuelve 1 si lo encuentra o 0 si no.
+*/
+int BuscarJugador( char nombre[100]);
+
+/*RellenaFichero
+
+	PARAMETROS:
+		- a -> Jugador a guardar
+	
+	RETURN:
+		- 0 en caso de éxito ó 1 en caso de error
+
+	Guarda un jugador en un fichero y devuelve 0 si lo guarda o 1 si no.
+*/
 int RellenaFichero(struct Jugador a);
+
+/*CheckPassword
+
+	PARAMETROS:
+		- newJ -> Jugador a comprobar
+	
+	RETURN:
+		- 0 en caso de éxito ó 1 en caso de error
+
+	Guarda un jugador en un fichero y devuelve 0 si lo guarda o 1 si no.
+*/
+int CheckPassword(struct Jugador newJ);
+
+//struct Jugador GetJugador(struct Jugador jugadores[30], int nJugadores, int sd);
+
+int GetPosJugador(struct Jugador jugadores[30], int nJugadores, int sd);
 
 //int ExisteUsuario(i,&readfds,&numClientes,arrayClientes);
 
