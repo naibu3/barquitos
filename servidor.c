@@ -85,11 +85,14 @@ int main ( int argc, char **argv)
     struct Partida partidas[15];
     int nPartidas=0;
 
+    char tableroAux[10][10];
+
     //Variables auxiliares
         int aux;
         char nombre[100];
         char passwd[100];
         struct Jugador jugadorAux;
+        struct Partida partidaAux;
 
 	/*-----------------------------------------------------------------------
 		El servidor acepta una petición
@@ -164,7 +167,13 @@ int main ( int argc, char **argv)
                                 close(sd);
                                 exit(-1);
                             }
-                            //Mensajes que se quieran mandar a los clientes (implementar)
+                            //DEBUG MODES
+                            if(strcmp(buffer,"JUGADORES\n") == 0){
+                                for(int j=0; j<nJugadores; j++){
+                                    printf("[USUARIO(%i): sd(%i), nombre(%s), password(%s), logged(%i), buscandoPartida(%i)]\n",
+                                        j, jugadores[j].sd, jugadores[j].nombre, jugadores[j].password, jugadores[j].logged, jugadores[j].buscandoPartida);
+                                }
+                            }
                         }
                         else //MENSAJE DE UN CLIENTE
                         {
@@ -188,7 +197,7 @@ int main ( int argc, char **argv)
 
                                     //printf("Jugador %s recibido!\n", nombre);   //debug
 
-                                    if(aux=JugadorConectado(jugadores, nJugadores, nombre)){
+                                    if(JugadorConectado(jugadores, nJugadores, nombre)!=-1){
                                         //AVISAR DE QUE YA ESTÁ CONECTADO
                                         strcpy(buffer, "–Err. Usuario ya conectado\n");
                                         send(i,buffer,sizeof(buffer),0);
@@ -199,19 +208,27 @@ int main ( int argc, char **argv)
                                             send(i,buffer,sizeof(buffer),0);
                                             
                                             //Añadir jugador a jugadores
-                                            jugadorAux.sd=sd;
-                                            strcpy(jugadorAux.nombre, nombre);
-                                            strcpy(jugadorAux.password, "");
-                                            jugadorAux.sd=i;
-                                            jugadorAux.enPartida=0;
-                                            jugadorAux.logged=0;
+                                            aux=GetPosJugador(jugadores, nJugadores, i);
+                                            if(aux!=-1){
 
-                                            jugadores[nJugadores]=jugadorAux;
-                                            nJugadores++;
-                                            
-                                            //Debug
-                                            for(int j=0; j<nJugadores; j++){
-                                                printf("[USUARIO(%i): sd(%i), nombre(%s)]\n", j, i, jugadores[j].nombre);
+                                                //printf("El nombre ahora deberia ser %s, aux=%i\n", jugadores[aux].nombre, aux);   //debug
+
+                                                strcpy(jugadores[aux].nombre, nombre);
+                                                strcpy(jugadores[aux].password, "");
+                                                jugadores[aux].sd=i;
+                                                jugadores[aux].enPartida=0;
+                                                jugadores[aux].logged=0;
+                                                jugadores[aux].buscandoPartida=0;
+                                            }
+                                            else{
+                                                strcpy(jugadores[nJugadores].nombre, nombre);
+                                                strcpy(jugadores[nJugadores].password, "");
+                                                jugadores[nJugadores].sd=i;
+                                                jugadores[nJugadores].enPartida=0;
+                                                jugadores[nJugadores].logged=0;
+                                                jugadores[nJugadores].buscandoPartida=0;
+
+                                                nJugadores++;
                                             }
                                         }
                                         else{//Err. Usuario no registrado.   
@@ -223,24 +240,28 @@ int main ( int argc, char **argv)
                                 if(strncmp(buffer,"PASSWORD ", 9) == 0){
 
                                     sscanf(buffer, "PASSWORD %s", passwd);
+                                    //printf("Passswd set to %s\n", passwd);  //debug
 
                                     //printf("Contraseña %s requested! sd(%i)\n", passwd, i);   //debug
 
                                     //Comprueba que el cliente esté conectado
-                                    if(aux=GetPosJugador(jugadores, nJugadores, i) != -1){
+                                    aux=GetPosJugador(jugadores, nJugadores, i);
+                                    if(aux != -1){
                                     
-                                        jugadorAux=jugadores[aux];
-                                        strcpy(jugadorAux.password, passwd);
+                                        strcpy(jugadores[aux].password, passwd);
+
+                                        //printf("Passswd set to %s (aux=%i)\n", jugadores[aux].password, aux);   //debug
 
                                         //Comprueba que la contraseña es correcta
-                                        if(CheckPassword(jugadorAux)) {
+                                        if(CheckPassword(jugadores[aux])) {
 
                                             strcpy(buffer, "+Ok. Usuario validado\n");
                                             send(i,buffer,sizeof(buffer),0);
-                                            jugadorAux.logged=1;
-                                            jugadores[aux]=jugadorAux;
+                                            jugadores[aux].logged=1;
                                         }
                                         else{
+
+                                            strcpy(jugadores[aux].password, "");
 
                                             strcpy(buffer, "–Err. Error en la validación1\n");
                                             send(i,buffer,sizeof(buffer),0);
@@ -280,12 +301,47 @@ int main ( int argc, char **argv)
                                 }
                                 if(strncmp(buffer,"INICIAR-PARTIDA ", 16) == 0){
                                     
-                                    //INICIAR PARTIDA  
-                                }
+                                    aux=GetPosJugador(jugadores, nJugadores, i);
 
-                                
+                                    //Buscar si hay alguien esperando
+                                    for(int j=0; j<nJugadores; j++){
+                                        
+                                        if(j!=aux && jugadores[j].buscandoPartida && jugadores[j].logged){
+                                            
+                                            //HAY JUGADORES ESPERANDO (Inicia la partida)
+                                            jugadores[j].buscandoPartida=0;
+
+                                            partidas[nPartidas].id_partida=nPartidas;
+                                            partidas[nPartidas].j1=jugadores[j].sd;
+                                            partidas[nPartidas].j2=jugadores[aux].sd;
+                                            partidas[nPartidas].next=1;
+                                            rellenaTablero(partidas[nPartidas].tablero1);
+                                            rellenaTablero(partidas[nPartidas].tablero2);
+
+                                            nPartidas++;
+
+                                            strcpy(buffer, "+Ok. Empieza la partida\n");
+                                            send(partidaAux.j1,buffer,sizeof(buffer),0);
+
+                                            strcpy(buffer, "+Ok. Empieza la partida\n");
+                                            send(partidaAux.j2,buffer,sizeof(buffer),0);
+
+                                            break;
+                                        }
+
+                                        if(j==nJugadores-1){
+
+                                            //NO HAY NADIE ESPERANDO
+                                            jugadores[aux].buscandoPartida=1;
+
+                                            strcpy(buffer, "+Ok. Esperando jugadores\n");
+                                            send(i,buffer,sizeof(buffer),0);
+                                        }
+                                    }
+                                }
                                 else{
                                     
+                                    //Debug (ALL MESSAGE BROADCAST)
                                     sprintf(identificador,"<%d>: %s",i,buffer);
                                     bzero(buffer,sizeof(buffer));
 

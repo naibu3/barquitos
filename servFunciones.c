@@ -37,6 +37,7 @@ void manejador (int signum){
     signal(SIGINT,manejador);
     
     //Implementar lo que se desee realizar cuando ocurra la excepción de ctrl+c en el servidor
+
 }
 
 /*-------------------------------------
@@ -47,13 +48,13 @@ int JugadorConectado(struct Jugador jugadores[30], int nJugadores,char nombre[10
 
 	for(int i=0; i<nJugadores; i++){
 
-		if(strcmp(jugadores[i].nombre, nombre)){
+		if(strcmp(jugadores[i].nombre, nombre)==0){
 			
 			return i;
 		}
 	}
 
-	return 0;
+	return -1;
 }
 
 int RellenaFichero(struct Jugador newJ){
@@ -132,19 +133,15 @@ int CheckPassword(struct Jugador newJ){
 
 		//printf("USER: %s\n", j.nombre);	//debug
 
-        if(strcmp(newJ.nombre, j.nombre) == 0){
-		
-			if(strcmp(newJ.password, j.password) == 0) {
+        if( (strcmp(newJ.nombre, j.nombre) == 0) && (strcmp(newJ.password, j.password) == 0) ){
+
 				fclose(f);
-				return 0;
-			}
-			else return 1;
+				return 1;
         }
-        
     }
 
     fclose(f);
-    return 1;
+    return 0;
 
 }
 
@@ -185,6 +182,15 @@ void imprimirTablero(char tablero[10][10]) {
 																			tablero[i][9]);
 	}
 
+}
+
+void copiaTablero(char tableroDest[10][10], char tableroOrig[10][10]){
+	
+	for(int i=0; i<10; i++){
+		for(int j=0; j<10; j++){
+			tableroDest[i][j]=tableroOrig[i][j];
+		}
+	}
 }
 
 void rellenaTablero(char tablero[10][10]) {

@@ -20,8 +20,9 @@ struct Partida{
     int id_partida;
 	char tablero1[10][10];
 	char tablero2[10][10];
-    struct Jugador j1;
-    struct Jugador j2;
+    int j1;
+    int j2;
+	int next;
 };
 
 /*
@@ -90,6 +91,8 @@ int GetPosJugador(struct Jugador jugadores[30], int nJugadores, int sd);
 	Imprime el tablero pasado como parámetro.
 */
 void imprimirTablero(char tablero[10][10]);
+
+void copiaTablero(char tableroDest[10][10], char tableroOrig[10][10]);
 
 /*rellenaTablero
 	PARAMETROS:
