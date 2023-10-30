@@ -164,10 +164,10 @@ int getPartidaJugador(struct Partida partidas[15], int nPartidas, int sd){
 	for(int i=0; i<nPartidas; i++){
 
 		if((partidas[i].j1 == sd) || (partidas[i].j2==sd)){
-			return 1;
+			return i;
 		}
 	}
-	return 0;
+	return -1;
 }
 
 /*-------------------------------------
@@ -314,7 +314,7 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco){
 	//printf("Colocando barco horizontal inicio (%i,%i)\n", row, col);	//Debug
 
 	
-
+	int cont=0;
 	for(int i=0; i<longitud; i++) {
 
 		if(i==0){	//Comprueba la primera posicion del barco
@@ -325,6 +325,12 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco){
 				if( ( row==0 || tableroAux[row-1][col]!='B' ) && (row==10 || tableroAux[row+1][col]!='B') ){
 
 					tableroAux[row][col]='B';
+
+					//Guardar coord. barco
+					barco->posiciones[cont][0]=row;
+					barco->posiciones[cont][1]=col;
+					cont++;
+
 					col++;
 
 				}else return 1;
@@ -340,6 +346,12 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco){
 				if( ( row==0 || tableroAux[row-1][col]!='B' ) && (row==10 || tableroAux[row+1][col]!='B') ){
 
 					tableroAux[row][col]='B';
+
+					//Guardar coord. barco
+					barco->posiciones[cont][0]=row;
+					barco->posiciones[cont][1]=col;
+					cont++;
+
 					col++;
 				
 				}else return 1;
@@ -356,6 +368,12 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco){
 					
 					//printf("9\n");	//Debug
 					tableroAux[row][col]='B';
+
+					//Guardar coord. barco
+					barco->posiciones[cont][0]=row;
+					barco->posiciones[cont][1]=col;
+					cont++;
+
 					col++;
 				
 				}else return 1;
@@ -365,15 +383,15 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco){
 		}
 	}
 
-	int cont=0;
 	for(int r=0; r<10; r++){
 		for(int c=0; c<10; c++){
 			tablero[r][c]=tableroAux[r][c];
-			if(tablero[r][c]=='B'){
+			
+			/*if(tablero[r][c]=='B'){
 				barco->posiciones[cont][0]=r;
 				barco->posiciones[cont][1]=c;
 				cont++;
-			}
+			}*/
 		}
 	}
 
@@ -402,6 +420,8 @@ int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco){
 
 	//printf("Colocando barco vertical inicio (%i,%i)\n", row, col);	//Debug
 
+	int cont=0;
+
 	for(int i=0; i<longitud; i++) {
 
 		if(i==0){
@@ -411,6 +431,12 @@ int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco){
 				if( ( col==0 || tableroAux[row][col-1]!='B' ) && (col==10 || tableroAux[row][col+1]!='B') ){
 
 					tableroAux[row][col]='B';
+
+					//Guardar coord. barco
+					barco->posiciones[cont][0]=row;
+					barco->posiciones[cont][1]=col;
+					cont++;
+
 					row++;
 				
 				}else return 1;
@@ -423,6 +449,12 @@ int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco){
 				if( ( col==0 || tableroAux[row][col-1]!='B' ) && (col==10 || tableroAux[row][col+1]!='B') ){
 
 					tableroAux[row][col]='B';
+
+					//Guardar coord. barco
+					barco->posiciones[cont][0]=row;
+					barco->posiciones[cont][1]=col;
+					cont++;
+
 					row++;
 				
 				}else return 1;
@@ -435,6 +467,12 @@ int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco){
 				if( ( col==0 || tableroAux[row][col-1]!='B' ) && (col==10 || tableroAux[row][col+1]!='B') ){
 
 					tableroAux[row][col]='B';
+
+					//Guardar coord. barco
+					barco->posiciones[cont][0]=row;
+					barco->posiciones[cont][1]=col;
+					cont++;
+
 					row++;
 				
 				}else return 1;
@@ -442,15 +480,15 @@ int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco){
 		}
 	}
 
-	int cont=0;
+
 	for(int r=0; r<10; r++){
 		for(int c=0; c<10; c++){
 			tablero[r][c]=tableroAux[r][c];
-			if(tablero[r][c]=='B'){
+			/*if(tablero[r][c]=='B'){
 				barco->posiciones[cont][0]=r;
 				barco->posiciones[cont][1]=c;
 				cont++;
-			}
+			}*/
 		}
 	}
 

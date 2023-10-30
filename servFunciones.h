@@ -148,3 +148,5 @@ int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco);
 int letterToInt(char c);
 
 int checkHundido(struct Barco barcos[5], int row, int col);
+
+int checkFin(struct Barco barcos[5]);

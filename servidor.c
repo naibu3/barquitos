@@ -308,8 +308,10 @@ int main ( int argc, char **argv)
                                 }
                                 if(strncmp(buffer,"DISPARO ", 8) == 0){
                                     
-                                    sscanf(buffer, "DISPARO %c%i", &ccol, &row);
+                                    sscanf(buffer, "DISPARO %c %i", &ccol, &row);
                                     col=letterToInt(ccol);
+
+                                    printf("[*]Disparo del jugador (%i) en: %c,%i\n", i, ccol, row); //debug
 
                                     //Comprueba que el jugador este en partida
                                     aux=GetPosJugador(jugadores, nJugadores, i);
@@ -317,6 +319,8 @@ int main ( int argc, char **argv)
                                         
                                         aux=getPartidaJugador(partidas, nPartidas, i);
                                         
+                                        printf("sd(%i)->aux(%i), turno de %i\n", i, aux, partidas[aux].turno);    //debug
+
                                         if(partidas[aux].turno==i){    //Es el turno del jugador que manda la peticion
 
                                             if(partidas[aux].j1==i){
@@ -330,16 +334,24 @@ int main ( int argc, char **argv)
                                                     sprintf(buffer, "+Ok. TOCADO: %c,%i",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
-                                                if(hundido==0){
+                                                else if(hundido==0){
                                                     sprintf(buffer, "+Ok. HUNDIDO: %c,%i",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
 
-                                                    //checkFin();
+                                                    //Comprobar fin de partida
+                                                    if(checkFin(partidas[aux].barcos1)){
+                                                        
+                                                        sprintf(buffer, "+Ok. %s ha ganado, número de disparos <num>", jugadores[GetPosJugador(jugadores, nJugadores, i)].nombre);
+                                                        send(i,buffer,sizeof(buffer),0);
+                                                        send(partidas[aux].j2,buffer,sizeof(buffer),0);
+                                                    }
                                                 }
                                                 else{
                                                     sprintf(buffer, "+Ok. AGUA: %c,%i",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
+
+                                                partidas[aux].turno=partidas[aux].j2;
 
                                             }else{
 
@@ -352,19 +364,28 @@ int main ( int argc, char **argv)
                                                     sprintf(buffer, "+Ok. TOCADO: %c,%i",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
-                                                if(hundido==0){
+                                                else if(hundido==0){
                                                     sprintf(buffer, "+Ok. HUNDIDO: %c,%i",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
-
-                                                    //checkFin();
+                                                    
+                                                    //Comprobar fin de partida
+                                                    if(checkFin(partidas[aux].barcos2)){
+                                                        
+                                                        sprintf(buffer, "+Ok. %s ha ganado, número de disparos <num>", jugadores[GetPosJugador(jugadores, nJugadores, i)].nombre);
+                                                        send(i,buffer,sizeof(buffer),0);
+                                                        send(partidas[aux].j1,buffer,sizeof(buffer),0);
+                                                    }
                                                 }
                                                 else{
                                                     sprintf(buffer, "+Ok. AGUA: %c,%i",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
+
+                                                partidas[aux].turno=partidas[aux].j1;
                                             }
 
-                                            
+                                            strcpy(buffer, "+Ok. Turno de partida\n");
+                                            send(partidas[aux].turno,buffer,sizeof(buffer),0);
                                         }
                                         else{   //No es el turno del jugador que manda la peticion
 
@@ -377,6 +398,7 @@ int main ( int argc, char **argv)
                                 if(strncmp(buffer,"INICIAR-PARTIDA", 15) == 0){
                                     
                                     aux=GetPosJugador(jugadores, nJugadores, i);
+                                    printf("sd(%i)->(aux=%i)\n", i, aux); //debug
 
                                     //Buscar si hay alguien esperando
                                     for(int j=0; j<nJugadores; j++){
@@ -390,13 +412,22 @@ int main ( int argc, char **argv)
                                             jugadores[aux].enPartida=1;
 
                                             partidas[nPartidas].id_partida=nPartidas;
+
                                             partidas[nPartidas].j1=jugadores[j].sd;
                                             partidas[nPartidas].j2=jugadores[aux].sd;
+
                                             partidas[nPartidas].turno=jugadores[j].sd;
+
+                                            //debug
+                                            printf("[Partida iniciada: id(%i), j1(%i), j2(%i), turno(%i)]\n",
+                                                partidas[nPartidas].id_partida, partidas[nPartidas].j1, partidas[nPartidas].j2, partidas[nPartidas].turno);
+
                                             printf("Generando tableros\n"); //debug
                                             rellenaTablero(partidas[nPartidas].tablero1, partidas[nPartidas].barcos1);
+                                            imprimirTablero(partidas[nPartidas].tablero1);  //debug
                                             printf("1 tablero generado\n"); //debug
                                             rellenaTablero(partidas[nPartidas].tablero2, partidas[nPartidas].barcos2);
+                                            imprimirTablero(partidas[nPartidas].tablero2);  //debug
                                             printf("2 tablero generado\n"); //debug
 
                                             nPartidas++;
@@ -404,9 +435,17 @@ int main ( int argc, char **argv)
                                             strcpy(buffer, "+Ok. Empieza la partida\n");
                                             send(jugadores[j].sd,buffer,sizeof(buffer),0);
 
+                                            strcpy(buffer, "+Ok. Turno de partida\n");
+                                            send(partidas[nPartidas-1].j1,buffer,sizeof(buffer),0);
+
                                             strcpy(buffer, "+Ok. Empieza la partida\n");
                                             send(jugadores[aux].sd,buffer,sizeof(buffer),0);
 
+                                            //debug
+                                            printf("[Partida iniciada: id(%i), j1(%i), j2(%i), turno(%i)]\n",
+                                                partidas[nPartidas-1].id_partida, partidas[nPartidas-1].j1, partidas[nPartidas-1].j2, partidas[nPartidas-1].turno);
+
+                                            
                                             break;
                                         }
 
@@ -417,6 +456,7 @@ int main ( int argc, char **argv)
 
                                             strcpy(buffer, "+Ok. Esperando jugadores\n");
                                             send(i,buffer,sizeof(buffer),0);
+                                            break;
                                         }
                                     }
                                 }
