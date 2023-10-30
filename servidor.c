@@ -130,21 +130,21 @@ int main ( int argc, char **argv)
                                     numClientes++;
                                     FD_SET(new_sd,&readfds);
                                 
-                                    strcpy(buffer, "Bienvenido al juego\n");
-                                
+                                    /*strcpy(buffer, "Bienvenido al juego\n");
                                     send(new_sd,buffer,sizeof(buffer),0);
-                                
+                                    */
+
                                     for(j=0; j<(numClientes-1);j++){
                                     
                                         bzero(buffer,sizeof(buffer));
-                                        sprintf(buffer, "[+] Ok. Usuario conectado <%d>",new_sd);
+                                        sprintf(buffer, "+Ok. Usuario conectado");
                                         send(arrayClientes[j],buffer,sizeof(buffer),0);
                                     }
                                 }
                                 else
                                 {
                                     bzero(buffer,sizeof(buffer));
-                                    strcpy(buffer,"Demasiados juadores conectados\n");
+                                    strcpy(buffer,"-Err. Demasiados juadores conectados\n");
                                     send(new_sd,buffer,sizeof(buffer),0);
                                     close(new_sd);
                                 }
@@ -311,7 +311,7 @@ int main ( int argc, char **argv)
                                     sscanf(buffer, "DISPARO %c,%i", &ccol, &row);
                                     col=letterToInt(ccol);
 
-                                    printf("[*]Disparo del jugador (%i) en: %c,%i\n", i, ccol, row); //debug
+                                    //printf("[*]Disparo del jugador (%i) en: %c,%i\n", i, ccol, row); //debug
 
                                     //Comprueba que el jugador este en partida
                                     aux=GetPosJugador(jugadores, nJugadores, i);
@@ -319,7 +319,7 @@ int main ( int argc, char **argv)
                                         
                                         aux=getPartidaJugador(partidas, nPartidas, i);
                                         
-                                        printf("sd(%i)->aux(%i), turno de %i\n", i, aux, partidas[aux].turno);    //debug
+                                        //printf("sd(%i)->aux(%i), turno de %i\n", i, aux, partidas[aux].turno);    //debug
 
                                         if(partidas[aux].turno==i){    //Es el turno del jugador que manda la peticion
 
@@ -354,9 +354,10 @@ int main ( int argc, char **argv)
                                                 else{
                                                     sprintf(buffer, "+Ok. AGUA: %c,%i\n",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
-                                                }
 
-                                                partidas[aux].turno=partidas[aux].j2;
+                                                    //Cambio de turno 
+                                                    partidas[aux].turno=partidas[aux].j2;
+                                                }
 
                                             }else{
 
@@ -389,13 +390,15 @@ int main ( int argc, char **argv)
                                                 else{
                                                     sprintf(buffer, "+Ok. AGUA: %c,%i\n",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
+
+                                                    //Cambio de turno 
+                                                    partidas[aux].turno=partidas[aux].j1;
                                                 }
-                                                partidas[aux].nDisparos++;
-                                                partidas[aux].turno=partidas[aux].j1;
                                             }
 
                                             strcpy(buffer, "+Ok. Turno de partida\n");
                                             send(partidas[aux].turno,buffer,sizeof(buffer),0);
+                                            partidas[aux].nDisparos++;
                                         }
                                         else{   //No es el turno del jugador que manda la peticion
 
@@ -408,7 +411,7 @@ int main ( int argc, char **argv)
                                 if(strncmp(buffer,"INICIAR-PARTIDA", 15) == 0){
                                     
                                     aux=GetPosJugador(jugadores, nJugadores, i);
-                                    printf("sd(%i)->(aux=%i)\n", i, aux); //debug
+                                    //printf("sd(%i)->(aux=%i)\n", i, aux); //debug
 
                                     //Buscar si hay alguien esperando
                                     for(int j=0; j<nJugadores; j++){
@@ -431,8 +434,9 @@ int main ( int argc, char **argv)
                                             partidas[nPartidas].turno=jugadores[j].sd;
 
                                             //debug
-                                            printf("[Partida iniciada: id(%i), j1(%i), j2(%i), turno(%i)]\n",
+                                            /*printf("[Partida iniciada: id(%i), j1(%i), j2(%i), turno(%i)]\n",
                                                 partidas[nPartidas].id_partida, partidas[nPartidas].j1, partidas[nPartidas].j2, partidas[nPartidas].turno);
+                                            */
 
                                             printf("Generando tableros\n"); //debug
                                             rellenaTablero(partidas[nPartidas].tablero1, partidas[nPartidas].barcos1);
@@ -454,9 +458,9 @@ int main ( int argc, char **argv)
                                             send(jugadores[aux].sd,buffer,sizeof(buffer),0);
 
                                             //debug
-                                            printf("[Partida iniciada: id(%i), j1(%i), j2(%i), turno(%i)]\n",
+                                            /*printf("[Partida iniciada: id(%i), j1(%i), j2(%i), turno(%i)]\n",
                                                 partidas[nPartidas-1].id_partida, partidas[nPartidas-1].j1, partidas[nPartidas-1].j2, partidas[nPartidas-1].turno);
-
+                                            */
                                             
                                             break;
                                         }
@@ -475,7 +479,7 @@ int main ( int argc, char **argv)
                                 else{
                                     
                                     //Debug (ALL MESSAGE BROADCAST)
-                                    sprintf(identificador,"<%d>: %s",i,buffer);
+                                    /*sprintf(identificador,"<%d>: %s",i,buffer);
                                     bzero(buffer,sizeof(buffer));
 
                                     strcpy(buffer,identificador);
@@ -485,8 +489,7 @@ int main ( int argc, char **argv)
                                     for(j=0; j<numClientes; j++)
                                         if(arrayClientes[j] != i)
                                             send(arrayClientes[j],buffer,sizeof(buffer),0);
-
-                                    
+                                    */  
                                 }
                                                                 
                                 

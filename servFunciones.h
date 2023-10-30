@@ -93,7 +93,7 @@ int GetPosJugador(struct Jugador jugadores[30], int nJugadores, int sd);
 int getPartidaJugador(struct Partida[15], int nPartidas, int sd);
 
 /*-------------------------------------
-    TABLERO
+    JUEGO
 ---------------------------------------*/
 
 /*imprimirTablero

@@ -71,7 +71,7 @@ int RellenaFichero(struct Jugador newJ){
 
     while(fscanf(f,"%s , %s", j.nombre, j.password)==2){
 
-		printf("USER: %s\n", j.nombre);	//Debug
+		//printf("USER: %s\n", j.nombre);	//Debug
 
         if(strcmp(newJ.nombre, j.nombre)==0){
 
@@ -209,7 +209,7 @@ void rellenaTablero(char tablero[10][10], struct Barco barcos[5]) {
 	srand(time(NULL));
 
 	//Inicializacion del agua
-	printf("Inicializando agua\n");	//debug
+	//printf("Inicializando agua\n");	//debug
 	for(int i=0; i<10; i++) {
 		
 		for(int j=0; j<10; j++){
@@ -219,7 +219,7 @@ void rellenaTablero(char tablero[10][10], struct Barco barcos[5]) {
 	}
 
 	//Inicialización de los barcos
-	printf("Inicializando barcos\n");	//debug
+	//printf("Inicializando barcos\n");	//debug
 	for(int b=0; b<5; b++){
 		for(int p=0; p<4; p++){
 			barcos[b].posiciones[p][0]=-1;
@@ -230,7 +230,7 @@ void rellenaTablero(char tablero[10][10], struct Barco barcos[5]) {
 	//BARCO DE 4
 	int r = rand() % 2;
 
-	printf("Colocando barco de 4\n");	//debug
+	//printf("Colocando barco de 4\n");	//debug
 
 	if(r) while(colocaBarcoHoriz(tablero, 4, barcos));
 	else while(colocaBarcoVert(tablero, 4, barcos));
@@ -238,7 +238,7 @@ void rellenaTablero(char tablero[10][10], struct Barco barcos[5]) {
 	//2 BARCOS DE 3
 	r = rand() % 2;
 
-	printf("Colocando barcos de 3\n");	//debug
+	//printf("Colocando barcos de 3\n");	//debug
 
 	for(int i=1; i<3; i++){
 
@@ -249,7 +249,7 @@ void rellenaTablero(char tablero[10][10], struct Barco barcos[5]) {
 	//2 BARCOS DE 2
 	r = rand() % 2;
 
-	printf("Colocando barcos de 2\n");	//debug
+	//printf("Colocando barcos de 2\n");	//debug
 
 	for(int i=3; i<5; i++){
 
@@ -334,10 +334,7 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco){
 					col++;
 
 				}else return 1;
-				//printf("1\n");	//Debug
 			}else return 1;
-			//printf("2\n");	//Debug
-
 		}
 		else if(i==longitud-1){	//Comprueba la ultima posicion del barco
 
@@ -355,18 +352,13 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco){
 					col++;
 				
 				}else return 1;
-				//printf("3\n");	//Debug
 			}else return 1;
-			//printf("4\n");	//Debug
 		}
 		else{	//Comprueba posiciones intermedias
 
-			//printf("7\n");	//Debug
 			if(tableroAux[row][col] != 'B'){
-				//printf("8\n");	//Debug
 				if( ( row==0 || tableroAux[row-1][col]!='B' ) && (row==10 || tableroAux[row+1][col]!='B') ){
 					
-					//printf("9\n");	//Debug
 					tableroAux[row][col]='B';
 
 					//Guardar coord. barco
@@ -377,9 +369,7 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco){
 					col++;
 				
 				}else return 1;
-				//printf("5\n");	//Debug
 			}else return 1;
-			//printf("6\n");	//Debug
 		}
 	}
 
@@ -424,7 +414,7 @@ int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco){
 
 	for(int i=0; i<longitud; i++) {
 
-		if(i==0){
+		if(i==0){	//PRIMERA CASILLA DE BARCO
 
 			if(tableroAux[row][col] != 'B' && (row==0 || tableroAux[row-1][col]!='B')){
 
@@ -442,7 +432,7 @@ int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco){
 				}else return 1;
 			}else return 1;
 		}
-		else if(i==longitud){
+		else if(i==longitud-1){	//ULTIMA CASILLA DE BARCO
 
 			if(tableroAux[row][col] != 'B' && (row==10 || tableroAux[row+1][col]!='B')){
 

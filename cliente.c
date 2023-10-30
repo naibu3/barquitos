@@ -52,7 +52,7 @@ int main ( )
 		Se solicita la conexión con el servidor
 	-------------------------------------------------------------------*/
 
-	printf("[*] Iniciando conexión con el servidor\n");
+	printf("[*] Iniciando conexión con el servidor\n\n");
 
 	len_sockname = sizeof(sockname);
 	
