@@ -32,6 +32,7 @@ struct Partida{
     int j1;
     int j2;
 	int turno;
+	int nDisparos;
 };
 
 /*

@@ -42,7 +42,7 @@ int main ( int argc, char **argv)
     ret = setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
 	sockname.sin_family = AF_INET;
-	sockname.sin_port = htons(2000);
+	sockname.sin_port = htons(2065);
 	sockname.sin_addr.s_addr =  INADDR_ANY;
 
 	if (bind (sd, (struct sockaddr *) &sockname, sizeof (sockname)) == -1)
@@ -308,7 +308,7 @@ int main ( int argc, char **argv)
                                 }
                                 if(strncmp(buffer,"DISPARO ", 8) == 0){
                                     
-                                    sscanf(buffer, "DISPARO %c %i", &ccol, &row);
+                                    sscanf(buffer, "DISPARO %c,%i", &ccol, &row);
                                     col=letterToInt(ccol);
 
                                     printf("[*]Disparo del jugador (%i) en: %c,%i\n", i, ccol, row); //debug
@@ -327,21 +327,23 @@ int main ( int argc, char **argv)
 
                                                 hundido=checkHundido(partidas[aux].barcos1, row, col);
 
-                                                sprintf(buffer, "+Ok. Disparo en: %c,%i",ccol, row);
+                                                sprintf(buffer, "+Ok. Disparo en: %c,%i\n",ccol, row);
                                                 send(partidas[aux].j2,buffer,sizeof(buffer),0);
 
                                                 if(hundido>0){
-                                                    sprintf(buffer, "+Ok. TOCADO: %c,%i",ccol, row);
+                                                    sprintf(buffer, "+Ok. TOCADO: %c,%i\n",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
                                                 else if(hundido==0){
-                                                    sprintf(buffer, "+Ok. HUNDIDO: %c,%i",ccol, row);
+                                                    sprintf(buffer, "+Ok. HUNDIDO: %c,%i\n",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
 
                                                     //Comprobar fin de partida
                                                     if(checkFin(partidas[aux].barcos1)){
                                                         
-                                                        sprintf(buffer, "+Ok. %s ha ganado, número de disparos <num>", jugadores[GetPosJugador(jugadores, nJugadores, i)].nombre);
+                                                        sprintf(buffer, "+Ok. %s ha ganado, número de disparos %i\n",
+                                                                    jugadores[GetPosJugador(jugadores, nJugadores, i)].nombre, partidas[aux].nDisparos);
+
                                                         send(i,buffer,sizeof(buffer),0);
                                                         send(partidas[aux].j2,buffer,sizeof(buffer),0);
 
@@ -350,7 +352,7 @@ int main ( int argc, char **argv)
                                                     }
                                                 }
                                                 else{
-                                                    sprintf(buffer, "+Ok. AGUA: %c,%i",ccol, row);
+                                                    sprintf(buffer, "+Ok. AGUA: %c,%i\n",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
 
@@ -360,21 +362,23 @@ int main ( int argc, char **argv)
 
                                                 hundido=checkHundido(partidas[aux].barcos2, row, col);
 
-                                                sprintf(buffer, "+Ok. Disparo en: %c,%i",ccol, row);
+                                                sprintf(buffer, "+Ok. Disparo en: %c,%i\n",ccol, row);
                                                 send(partidas[aux].j1,buffer,sizeof(buffer),0);
 
                                                 if(hundido>0){
-                                                    sprintf(buffer, "+Ok. TOCADO: %c,%i",ccol, row);
+                                                    sprintf(buffer, "+Ok. TOCADO: %c,%i\n",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
                                                 else if(hundido==0){
-                                                    sprintf(buffer, "+Ok. HUNDIDO: %c,%i",ccol, row);
+                                                    sprintf(buffer, "+Ok. HUNDIDO: %c,%i\n",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                     
                                                     //Comprobar fin de partida
                                                     if(checkFin(partidas[aux].barcos2)){
                                                         
-                                                        sprintf(buffer, "+Ok. %s ha ganado, número de disparos <num>", jugadores[GetPosJugador(jugadores, nJugadores, i)].nombre);
+                                                        sprintf(buffer, "+Ok. %s ha ganado, número de disparos %i\n",
+                                                                    jugadores[GetPosJugador(jugadores, nJugadores, i)].nombre, partidas[aux].nDisparos);
+
                                                         send(i,buffer,sizeof(buffer),0);
                                                         send(partidas[aux].j1,buffer,sizeof(buffer),0);
 
@@ -383,10 +387,10 @@ int main ( int argc, char **argv)
                                                     }
                                                 }
                                                 else{
-                                                    sprintf(buffer, "+Ok. AGUA: %c,%i",ccol, row);
+                                                    sprintf(buffer, "+Ok. AGUA: %c,%i\n",ccol, row);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
-
+                                                partidas[aux].nDisparos++;
                                                 partidas[aux].turno=partidas[aux].j1;
                                             }
 
@@ -421,6 +425,8 @@ int main ( int argc, char **argv)
 
                                             partidas[nPartidas].j1=jugadores[j].sd;
                                             partidas[nPartidas].j2=jugadores[aux].sd;
+
+                                            partidas[nPartidas].nDisparos=0;
 
                                             partidas[nPartidas].turno=jugadores[j].sd;
 
