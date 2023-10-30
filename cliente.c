@@ -9,7 +9,9 @@
 #include <time.h>
 #include <arpa/inet.h>
 
-#include "jugador.h"
+#include "servFunciones.h"
+
+//#include "jugador.h"
 
 int main ( )
 {
@@ -68,8 +70,12 @@ int main ( )
     FD_SET(sd,&readfds);
 
 	/*-----------------------------------------
-	
+		VARIABLES DE JUEGO
 	-----------------------------------------*/
+
+	char tablero[10][10];
+	char ccol;
+	int row, col;
 
 	/* ------------------------------------------------------------------
 		Se transmite la información
@@ -93,10 +99,45 @@ int main ( )
             if(strcmp(buffer,"Desconexión servidor\n") == 0)
                 fin =1;
 
-			
-			/*if(strcmp(buffer,"\n") == 0){
-                fin = 1;
-            }*/
+			//COMPROBACIONES
+
+			if(strncmp(buffer,"+Ok. Empieza la partida", 23) == 0){
+                //PONER EL TABERO A CERO (*)
+				for(int r=0; r<10; r++){
+					for(int c=0; c<10; c++){
+						tablero[r][c]='*';
+					}
+				}
+				imprimirTablero(tablero);
+            }
+
+			if(strncmp(buffer,"+Ok. TOCADO: ", 13) == 0){
+                //TOCADO
+				sscanf(buffer, "+Ok. TOCADO: %c,%i", &ccol, &row);
+                col=letterToInt(ccol);
+
+				tablero[row][col]='B';
+
+				imprimirTablero(tablero);
+            }
+			if(strncmp(buffer,"+Ok. HUNDIDO: ", 14) == 0){
+                //HUNDIDO
+				sscanf(buffer, "+Ok. HUNDIDO: %c,%i", &ccol, &row);
+                col=letterToInt(ccol);
+
+				tablero[row][col]='B';
+
+				imprimirTablero(tablero);
+            }
+			if(strncmp(buffer,"+Ok. AGUA: ", 11) == 0){
+                //AGUA
+				sscanf(buffer, "+Ok. AGUA: %c,%i", &ccol, &row);
+                col=letterToInt(ccol);
+
+				tablero[row][col]='A';
+
+				imprimirTablero(tablero);
+            }
             
         }
         else

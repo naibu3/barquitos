@@ -344,6 +344,9 @@ int main ( int argc, char **argv)
                                                         sprintf(buffer, "+Ok. %s ha ganado, número de disparos <num>", jugadores[GetPosJugador(jugadores, nJugadores, i)].nombre);
                                                         send(i,buffer,sizeof(buffer),0);
                                                         send(partidas[aux].j2,buffer,sizeof(buffer),0);
+
+                                                        jugadores[GetPosJugador(jugadores, nJugadores, partidas[aux].j1)].enPartida=0;
+                                                        jugadores[GetPosJugador(jugadores, nJugadores, partidas[aux].j2)].enPartida=0;
                                                     }
                                                 }
                                                 else{
@@ -374,6 +377,9 @@ int main ( int argc, char **argv)
                                                         sprintf(buffer, "+Ok. %s ha ganado, número de disparos <num>", jugadores[GetPosJugador(jugadores, nJugadores, i)].nombre);
                                                         send(i,buffer,sizeof(buffer),0);
                                                         send(partidas[aux].j1,buffer,sizeof(buffer),0);
+
+                                                        jugadores[GetPosJugador(jugadores, nJugadores, partidas[aux].j1)].enPartida=0;
+                                                        jugadores[GetPosJugador(jugadores, nJugadores, partidas[aux].j2)].enPartida=0;
                                                     }
                                                 }
                                                 else{
