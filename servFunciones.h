@@ -15,6 +15,14 @@
 
 #include "jugador.h"
 
+/*struct Barco
+	PARAMETROS
+		- vida -> posiciones restantes del barco.
+		- longitud -> longitud del barco.
+		- posiciones -> vector de pares de casillas con las coordenadas del barco.
+
+	Representación de un barco.
+*/
 struct Barco{
 
 	int vida;
@@ -22,6 +30,20 @@ struct Barco{
 	int posiciones[4][2];	//row, col
 };
 
+/*struct Barco
+	PARAMETROS
+		- id_partida -> posiciones restantes del barco.
+		- tablero1 -> tablero del jugador 1.
+		- barcos1 -> vector con los barcos del jugador1.
+		- tablero2 -> tablero del jugador 2.
+		- barcos2 -> vector con los barcos del jugador2.
+    	- j1 -> id del jugador 1.
+		- j2 -> id del jugador 2.
+		- turno -> id del jugador que tiene el turno.
+		- nDisparos -> numero de disparos.
+
+	Representación de una partida.
+*/
 struct Partida{
 
     int id_partida;
@@ -35,9 +57,9 @@ struct Partida{
 	int nDisparos;
 };
 
-/*
- * El servidor ofrece el servicio de un chat
- */
+/*-------------------------------------
+	SERVIDOR
+---------------------------------------*/
 
 void manejador(int signum);
 void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]);
@@ -46,6 +68,18 @@ void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClie
     LOGIN
 ---------------------------------------*/
 
+/*JugadorConectado
+
+	PARAMETROS:
+		- jugadores -> vector de jugadores.
+		- nJugadores -> cantidad de jugadores en el vector.
+		- nombre -> nombre del jugador a buscar.
+
+	RETURN:
+		- posicion del jugador en el vector.
+
+	Comprueba si un jugador dado por su nombre está en un vector de jugadores.
+*/
 int JugadorConectado(struct Jugador jugadores[30], int nJugadores, char nombre[100]);
 
 /*BuscarJugador
@@ -58,7 +92,7 @@ int JugadorConectado(struct Jugador jugadores[30], int nJugadores, char nombre[1
 
 	Busca el nombre de un jugador en un fichero y devuelve 1 si lo encuentra o 0 si no.
 */
-int BuscarJugador( char nombre[100]);
+int BuscarJugador(char nombre[100]);
 
 /*RellenaFichero
 
@@ -66,9 +100,9 @@ int BuscarJugador( char nombre[100]);
 		- a -> Jugador a guardar
 	
 	RETURN:
-		- 0 en caso de éxito ó 1 en caso de error
+		- 1 en caso de éxito ó 0 en caso de error
 
-	Guarda un jugador en un fichero y devuelve 0 si lo guarda o 1 si no.
+	Guarda un jugador en un fichero y devuelve 1 si lo guarda o 0 si no.
 */
 int RellenaFichero(struct Jugador a);
 
@@ -86,11 +120,33 @@ int CheckPassword(struct Jugador newJ);
 
 //struct Jugador GetJugador(struct Jugador jugadores[30], int nJugadores, int sd);
 
+/*getPosJugador
+
+	PARAMETROS:
+		- jugadores -> vector de jugadores
+		- nJugadores -> numero de jugadores en el vector
+		- sd -> identificador a buscar
+	
+	RETURN:
+		- posicion del jugador en el vector en caso de éxito ó -1 en caso de error
+
+	Busca la posición de un jugador en un vector en base a su sd.
+*/
 int GetPosJugador(struct Jugador jugadores[30], int nJugadores, int sd);
 
-//int ExisteUsuario(i,&readfds,&numClientes,arrayClientes);
+/*getPartidaJugador
 
-int getPartidaJugador(struct Partida[15], int nPartidas, int sd);
+	PARAMETROS:
+		- partidas -> vector de partidas
+		- nPartidas -> numero de partidas en el vector
+		- sd -> identificador a buscar
+	
+	RETURN:
+		- posicion de la partida en el vector en caso de éxito ó -1 en caso de error
+
+	Busca la posición de una partida en un vector en base al sd de uno de los jugadores.
+*/
+int getPartidaJugador(struct Partida partidas[15], int nPartidas, int sd);
 
 /*-------------------------------------
     JUEGO
@@ -146,8 +202,24 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco);
 */
 int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco);
 
+/*letterToInt
+
+	Convierte una letra c a su posición en el abecedario.
+*/
 int letterToInt(char c);
 
+/*checkHundido
+
+	Comprueba si un barco se ha tocado:
+
+		- 0 -> TOCADO Y HUNDIDO
+		- >0 -> TOCADO
+		- -1 -> AGUA
+*/
 int checkHundido(struct Barco barcos[5], int row, int col);
 
+/*checkFin
+
+	Comprueba si queda algun barco a flote.
+*/
 int checkFin(struct Barco barcos[5]);
