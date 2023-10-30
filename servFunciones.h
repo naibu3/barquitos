@@ -15,14 +15,23 @@
 
 #include "jugador.h"
 
+struct Barco{
+
+	int vida;
+	int longitud;
+	int posiciones[4][2];	//row, col
+};
+
 struct Partida{
 
     int id_partida;
 	char tablero1[10][10];
+	struct Barco barcos1[5];
 	char tablero2[10][10];
+	struct Barco barcos2[5];
     int j1;
     int j2;
-	int next;
+	int turno;
 };
 
 /*
@@ -80,6 +89,8 @@ int GetPosJugador(struct Jugador jugadores[30], int nJugadores, int sd);
 
 //int ExisteUsuario(i,&readfds,&numClientes,arrayClientes);
 
+int getPartidaJugador(struct Partida[15], int nPartidas, int sd);
+
 /*-------------------------------------
     TABLERO
 ---------------------------------------*/
@@ -106,7 +117,7 @@ void copiaTablero(char tableroDest[10][10], char tableroOrig[10][10]);
 
 	Todos aleatoriamente tanto en posicion como orientación (horiz/vert).
 */
-void rellenaTablero(char tablero[10][10]);
+void rellenaTablero(char tablero[10][10], struct Barco barcos[5]);
 
 /*colocaBarcoHoriz
 	PARAMETROS:
@@ -119,7 +130,7 @@ void rellenaTablero(char tablero[10][10]);
 	Coloca un barco de longitud dada horizontalmente en el tablero,
 	tiene en cuenta que no haya barcos alrededor.
 */
-int colocaBarcoHoriz(char tablero[10][10], int longitud);
+int colocaBarcoHoriz(char tablero[10][10], int longitud, struct Barco * barco);
 
 /*colocaBarcoVert
 	PARAMETROS:
@@ -132,4 +143,8 @@ int colocaBarcoHoriz(char tablero[10][10], int longitud);
 	Coloca un barco de longitud dada verticalmente en el tablero,
 	tiene en cuenta que no haya barcos alrededor.
 */
-int colocaBarcoVert(char tablero[10][10], int longitud);
+int colocaBarcoVert(char tablero[10][10], int longitud, struct Barco * barco);
+
+int letterToInt(char c);
+
+int checkHundido(struct Barco barcos[5], int row, int col);

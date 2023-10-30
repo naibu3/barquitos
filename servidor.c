@@ -94,6 +94,10 @@ int main ( int argc, char **argv)
         struct Jugador jugadorAux;
         struct Partida partidaAux;
 
+        int row, col;
+        char ccol;
+        int hundido;
+
 	/*-----------------------------------------------------------------------
 		El servidor acepta una petición
 	------------------------------------------------------------------------ */
@@ -170,8 +174,15 @@ int main ( int argc, char **argv)
                             //DEBUG MODES
                             if(strcmp(buffer,"JUGADORES\n") == 0){
                                 for(int j=0; j<nJugadores; j++){
-                                    printf("[USUARIO(%i): sd(%i), nombre(%s), password(%s), logged(%i), buscandoPartida(%i)]\n",
-                                        j, jugadores[j].sd, jugadores[j].nombre, jugadores[j].password, jugadores[j].logged, jugadores[j].buscandoPartida);
+                                    printf("[USUARIO(%i): sd(%i), nombre(%s), password(%s), logged(%i), buscandoPartida(%i), enPartida(%i)]\n",
+                                        j, jugadores[j].sd, jugadores[j].nombre, jugadores[j].password, jugadores[j].logged,
+                                        jugadores[j].buscandoPartida, jugadores[j].enPartida);
+                                }
+                            }
+                            if(strcmp(buffer,"PARTIDAS\n") == 0){
+                                for(int j=0; j<nPartidas; j++){
+                                    printf("[Partida(%i): id(%i), j1(%i), j2(%i), turno(%i)]\n",
+                                        j, partidas[j].id_partida, partidas[j].j1, partidas[j].j2, partidas[j].turno);
                                 }
                             }
                         }
@@ -297,9 +308,73 @@ int main ( int argc, char **argv)
                                 }
                                 if(strncmp(buffer,"DISPARO ", 8) == 0){
                                     
-                                    //Disparo
+                                    sscanf(buffer, "DISPARO %c%i", &ccol, &row);
+                                    col=letterToInt(ccol);
+
+                                    //Comprueba que el jugador este en partida
+                                    aux=GetPosJugador(jugadores, nJugadores, i);
+                                    if(aux!=-1 && jugadores[aux].enPartida){
+                                        
+                                        aux=getPartidaJugador(partidas, nPartidas, i);
+                                        
+                                        if(partidas[aux].turno==i){    //Es el turno del jugador que manda la peticion
+
+                                            if(partidas[aux].j1==i){
+
+                                                hundido=checkHundido(partidas[aux].barcos1, row, col);
+
+                                                sprintf(buffer, "+Ok. Disparo en: %c,%i",ccol, row);
+                                                send(partidas[aux].j2,buffer,sizeof(buffer),0);
+
+                                                if(hundido>0){
+                                                    sprintf(buffer, "+Ok. TOCADO: %c,%i",ccol, row);
+                                                    send(i,buffer,sizeof(buffer),0);
+                                                }
+                                                if(hundido==0){
+                                                    sprintf(buffer, "+Ok. HUNDIDO: %c,%i",ccol, row);
+                                                    send(i,buffer,sizeof(buffer),0);
+
+                                                    //checkFin();
+                                                }
+                                                else{
+                                                    sprintf(buffer, "+Ok. AGUA: %c,%i",ccol, row);
+                                                    send(i,buffer,sizeof(buffer),0);
+                                                }
+
+                                            }else{
+
+                                                hundido=checkHundido(partidas[aux].barcos2, row, col);
+
+                                                sprintf(buffer, "+Ok. Disparo en: %c,%i",ccol, row);
+                                                send(partidas[aux].j1,buffer,sizeof(buffer),0);
+
+                                                if(hundido>0){
+                                                    sprintf(buffer, "+Ok. TOCADO: %c,%i",ccol, row);
+                                                    send(i,buffer,sizeof(buffer),0);
+                                                }
+                                                if(hundido==0){
+                                                    sprintf(buffer, "+Ok. HUNDIDO: %c,%i",ccol, row);
+                                                    send(i,buffer,sizeof(buffer),0);
+
+                                                    //checkFin();
+                                                }
+                                                else{
+                                                    sprintf(buffer, "+Ok. AGUA: %c,%i",ccol, row);
+                                                    send(i,buffer,sizeof(buffer),0);
+                                                }
+                                            }
+
+                                            
+                                        }
+                                        else{   //No es el turno del jugador que manda la peticion
+
+                                            strcpy(buffer, "-Err. Debe esperar su turno\n");
+                                            send(i,buffer,sizeof(buffer),0);
+                                        }
+
+                                    }
                                 }
-                                if(strncmp(buffer,"INICIAR-PARTIDA ", 16) == 0){
+                                if(strncmp(buffer,"INICIAR-PARTIDA", 15) == 0){
                                     
                                     aux=GetPosJugador(jugadores, nJugadores, i);
 
@@ -311,20 +386,26 @@ int main ( int argc, char **argv)
                                             //HAY JUGADORES ESPERANDO (Inicia la partida)
                                             jugadores[j].buscandoPartida=0;
 
+                                            jugadores[j].enPartida=1;
+                                            jugadores[aux].enPartida=1;
+
                                             partidas[nPartidas].id_partida=nPartidas;
                                             partidas[nPartidas].j1=jugadores[j].sd;
                                             partidas[nPartidas].j2=jugadores[aux].sd;
-                                            partidas[nPartidas].next=1;
-                                            rellenaTablero(partidas[nPartidas].tablero1);
-                                            rellenaTablero(partidas[nPartidas].tablero2);
+                                            partidas[nPartidas].turno=jugadores[j].sd;
+                                            printf("Generando tableros\n"); //debug
+                                            rellenaTablero(partidas[nPartidas].tablero1, partidas[nPartidas].barcos1);
+                                            printf("1 tablero generado\n"); //debug
+                                            rellenaTablero(partidas[nPartidas].tablero2, partidas[nPartidas].barcos2);
+                                            printf("2 tablero generado\n"); //debug
 
                                             nPartidas++;
 
                                             strcpy(buffer, "+Ok. Empieza la partida\n");
-                                            send(partidaAux.j1,buffer,sizeof(buffer),0);
+                                            send(jugadores[j].sd,buffer,sizeof(buffer),0);
 
                                             strcpy(buffer, "+Ok. Empieza la partida\n");
-                                            send(partidaAux.j2,buffer,sizeof(buffer),0);
+                                            send(jugadores[aux].sd,buffer,sizeof(buffer),0);
 
                                             break;
                                         }
@@ -369,9 +450,7 @@ int main ( int argc, char **argv)
                     }
                 }
             }
-		}
-
+	    }
 	close(sd);
 	return 0;
-	
 }
